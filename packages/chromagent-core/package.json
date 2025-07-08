@@ -1,0 +1,30 @@
+{
+  "name": "chromagent-core",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dungviettran89/chromagent.git",
+    "directory": "packages/chromagent-core"
+  },
+  "description": "",
+  "dependencies": {
+    "@langchain/community": "^0.3.48",
+    "@langchain/core": "^0.3.62",
+    "@langchain/google-genai": "^0.2.14",
+    "@langchain/openai": "^0.5.18",
+    "@types/express": "^5.0.3",
+    "express": "^5.1.0",
+    "langchain": "^0.3.29"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}

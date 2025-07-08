@@ -1,6 +1,6 @@
 # Chromagent
 
-Chromagent is a Chrome extension development project that integrates with large language models (LLMs) like Google Gemini and OpenAI. It provides a side panel chat interface where users can interact with these models, including the ability to send text and image inputs.
+Chromagent is a Chrome extension development project that integrates with large language models (LLMs) like Google Gemini and OpenAI. It has evolved into an npm workspace to better manage its components, including a core library, a Chrome extension, and a command-line interface (CLI) tool.
 
 ## Features
 
@@ -20,33 +20,33 @@ Chromagent is a Chrome extension development project that integrates with large 
 
 1.  Clone the repository:
     ```bash
-    git clone <repository-url>
+    git clone https://github.com/dungviettran89/chromagent.git
     cd chromagent
     ```
-2.  Install dependencies:
+2.  Install dependencies and set up the workspace:
     ```bash
     npm install
     ```
 
 ### Development
 
-To start the development server in watch mode (auto-rebuild on code changes):
-
-```bash
-npm run dev
-```
-
-To build the extension for production:
+To build all packages in the workspace:
 
 ```bash
 npm run build
+```
+
+To start the development server for the extension in watch mode (auto-rebuild on code changes):
+
+```bash
+npm run dev --workspace=chromagent-extension
 ```
 
 ### Loading the Extension in Chrome
 
 1.  Open Chrome and navigate to `chrome://extensions`.
 2.  Enable "Developer mode" (top right corner).
-3.  Click "Load unpacked" and select the `dist` directory from this project.
+3.  Click "Load unpacked" and select the `packages/chromagent-extension/dist` directory from this project.
 4.  The Chromagent extension should now appear in your extensions list and its icon will be visible in the browser toolbar.
 
 ## Usage
@@ -70,21 +70,36 @@ npm run build
 
 ```
 chromagent/
-├───dist/                 # Compiled extension files
+├───.github/              # GitHub Actions workflows
+│   └───workflows/
+│       └───build.yml     # Workflow for building the project
+├───packages/
+│   ├───chromagent-cli/   # Command-line interface tool
+│   │   ├───src/
+│   │   │   └───index.ts
+│   │   └───package.json
+│   │   └───tsconfig.json
+│   ├───chromagent-core/  # Core logic and shared functionalities
+│   │   ├───src/
+│   │   │   └───index.ts
+│   │   └───package.json
+│   │   └───tsconfig.json
+│   └───chromagent-extension/ # Chrome extension
+│       ├───dist/         # Compiled extension files
+│       ├───src/
+│       │   ├───background.ts
+│       │   ├───content_script.ts
+│       │   ├───sidepanel.html
+│       │   ├───sidepanel.ts
+│       │   ├───manifest.json
+│       │   └───service/
+│       │       └───configService.ts
+│       ├───package.json
+│       ├───tsconfig.json
+│       └───webpack.config.js
 ├───node_modules/         # Node.js dependencies
-├───src/
-│   ├───background.ts     # Background service worker script
-│   ├───content_script.ts # Content script (if any)
-│   ├───sidepanel.html    # HTML for the side panel UI
-│   ├───sidepanel.ts      # TypeScript logic for the side panel
-│   ├───manifest.json     # Chrome extension manifest
-│   └───service/
-│       └───configService.ts # Service for managing configurations
-├───docs/
-│   └───design.md         # High-level design document
-├───package.json
-├───tsconfig.json
-├───webpack.config.js
+├───package.json          # Root workspace configuration
+├───LICENSE
 └───README.md
 ```
 
@@ -94,4 +109,4 @@ Contributions are welcome! Please feel free to submit issues or pull requests.
 
 ## License
 
-This project is licensed under the [ISC License](LICENSE).
+This project is licensed under the [Apache License 2.0](LICENSE).

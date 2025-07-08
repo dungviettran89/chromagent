@@ -1,0 +1,21 @@
+{
+  "name": "chromagent-cli",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dungviettran89/chromagent.git",
+    "directory": "packages/chromagent-cli"
+  },
+  "description": "",
+  "dependencies": {
+    "chromagent-core": "^1.0.0"
+  }
+}

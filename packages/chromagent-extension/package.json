@@ -1,0 +1,35 @@
+{
+  "name": "chromagent",
+  "version": "1.0.0",
+  "description": "Opensource Agentic Browser",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "dev": "webpack --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dungviettran89/chromagent.git",
+    "directory": "packages/chromagent-extension"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.328",
+    "copy-webpack-plugin": "^13.0.0",
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.8.3",
+    "webpack": "^5.99.9",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.2"
+  },
+  "dependencies": {
+    "@langchain/community": "^0.3.47",
+    "@langchain/core": "^0.3.61",
+    "@langchain/google-genai": "^0.2.14",
+    "@langchain/openai": "^0.5.16",
+    "langchain": "^0.3.29"
+  }
+}
