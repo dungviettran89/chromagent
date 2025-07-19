@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "ts-mocha --full-trace test/**/*.test.ts",
     "build": "tsc"
   },
   "keywords": [],
@@ -25,6 +25,13 @@
     "langchain": "^0.3.29"
   },
   "devDependencies": {
+    "@types/mocha": "^9.0.0",
+    "@types/sinon": "^17.0.3",
+    "chai": "^4.3.10",
+    "mocha": "^9.0.0",
+    "sinon": "^17.0.1",
+    "ts-mocha": "^10.0.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   }
 }

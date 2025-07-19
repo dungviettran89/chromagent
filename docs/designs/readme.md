@@ -4,11 +4,11 @@ This document outlines the high-level design of the various modules within the C
 
 ## Modules:
 
-*   **chromagent-core:** This module contains the core logic and shared utilities for easier integration with Large Language Models (LLMs). It provides foundational functionalities that can be reused across different Chromagent components.
+*   **[chromagent-core](./chromagent-core/readme.md):** This module contains the core logic and shared utilities for easier integration with Large Language Models (LLMs). It provides foundational functionalities that can be reused across different Chromagent components.
 
 *   **chromagent-cli:** A simple command-line interface (CLI) tool designed to test Chromagent functions and utilize its utilities. This module provides a direct way to interact with the core functionalities from the terminal.
 
-*   **chromagent-extension:** This module is the Chrome extension itself, providing a side panel chat interface for interacting with LLMs. Its detailed design is described in `docs/chromagent-extension.md`.
+*   **[chromagent-extension](./chromagent-extension/readme.md):** This module is the Chrome extension itself, providing a side panel chat interface for interacting with LLMs.
 
 *   **chromagent-web:** (Future Module) This module is envisioned as a drop-in LangGraph agent, allowing easy integration of LLM agents into any website. It aims to provide a flexible way to embed LLM capabilities directly into web applications.
 
