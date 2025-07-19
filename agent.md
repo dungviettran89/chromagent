@@ -9,3 +9,4 @@ All standard procedures are in docs/procedures
 
 List down all files in docs folder first to find relevant documents
 Read all relevant documents before starting anywork
+Do not use search and replace, always rewrite whole file

@@ -2,7 +2,7 @@ import {
   BaseChatModel,
   BaseChatModelParams,
 } from "@langchain/core/language_models/chat_models";
-import { ChatResult } from "@langchain/core/outputs";
+import { ChatResult, ChatGeneration } from "@langchain/core/outputs";
 import { CallbackManagerForLLMRun } from "@langchain/core/callbacks/manager";
 import { BaseMessage } from "@langchain/core/messages";
 
@@ -89,7 +89,12 @@ export class RoutingChatModel extends BaseChatModel {
 
     while (mainModelStatus) {
       try {
-        return result;
+        const llmResult = await mainModelStatus.model._generate(messages, options, runManager);
+        const chatResult: ChatResult = {
+            generations: llmResult.generations.flat() as ChatGeneration[],
+            llmOutput: llmResult.llmOutput,
+        };
+        return chatResult;
       } catch (e) {
         mainModelStatus.isAvailable = false;
         mainModelStatus.lastFailure = Date.now();
@@ -100,7 +105,12 @@ export class RoutingChatModel extends BaseChatModel {
     const fallbackModelStatus = this.getRandomFallbackModel();
     if (fallbackModelStatus) {
       try {
-        return result;
+        const llmResult = await fallbackModelStatus.model._generate(messages, options, runManager);
+        const chatResult: ChatResult = {
+            generations: llmResult.generations.flat() as ChatGeneration[],
+            llmOutput: llmResult.llmOutput,
+        };
+        return chatResult;
       } catch (e) {
         // If fallback also fails, we throw the error
         throw new Error(

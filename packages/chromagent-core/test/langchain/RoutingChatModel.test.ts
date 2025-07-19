@@ -3,16 +3,14 @@ import { RoutingChatModel } from "../../src/langchain/RoutingChatModel";
 import { AIMessage, HumanMessage } from "@langchain/core/messages";
 import { expect } from "chai";
 import * as sinon from "sinon";
-import { ChatGeneration, LLMResult } from "@langchain/core/outputs";
+import { ChatGeneration, LLMResult, ChatResult } from "@langchain/core/outputs";
 
-const createMockResult = (message: string): LLMResult => ({
+const createMockResult = (message: string): ChatResult => ({
   generations: [
-    [
-      {
-        text: message,
-        message: new AIMessage(message),
-      } as ChatGeneration,
-    ],
+    {
+      text: message,
+      message: new AIMessage(message),
+    },
   ],
 });
 
@@ -24,8 +22,8 @@ describe("RoutingChatModel", () => {
   it("should route to the first available main model", async () => {
     const model1 = new FakeChatModel({});
     const model2 = new FakeChatModel({});
-    sinon.stub(model1, "generate").resolves(createMockResult("Model 1"));
-    sinon.stub(model2, "generate").resolves(createMockResult("Model 2"));
+    sinon.stub(model1, "_generate").resolves(createMockResult("Model 1"));
+    sinon.stub(model2, "_generate").resolves(createMockResult("Model 2"));
 
     const routingModel = new RoutingChatModel({
       mainModels: [model1, model2],
@@ -39,8 +37,8 @@ describe("RoutingChatModel", () => {
   it("should route to the next main model in round-robin", async () => {
     const model1 = new FakeChatModel({});
     const model2 = new FakeChatModel({});
-    sinon.stub(model1, "generate").resolves(createMockResult("Model 1"));
-    sinon.stub(model2, "generate").resolves(createMockResult("Model 2"));
+    sinon.stub(model1, "_generate").resolves(createMockResult("Model 1"));
+    sinon.stub(model2, "_generate").resolves(createMockResult("Model 2"));
 
     const routingModel = new RoutingChatModel({
       mainModels: [model1, model2],
@@ -54,9 +52,9 @@ describe("RoutingChatModel", () => {
 
   it("should fallback to the next main model if one fails", async () => {
     const failingModel = new FakeChatModel({});
-    sinon.stub(failingModel, "generate").rejects(new Error("Failure"));
+    sinon.stub(failingModel, "_generate").rejects(new Error("Failure"));
     const model2 = new FakeChatModel({});
-    sinon.stub(model2, "generate").resolves(createMockResult("Model 2"));
+    sinon.stub(model2, "_generate").resolves(createMockResult("Model 2"));
     const routingModel = new RoutingChatModel({
       mainModels: [failingModel, model2],
       fallbackModels: [],
@@ -68,11 +66,11 @@ describe("RoutingChatModel", () => {
 
   it("should use a fallback model if all main models fail", async () => {
     const failingModel1 = new FakeChatModel({});
-    sinon.stub(failingModel1, "generate").rejects(new Error("Failure"));
+    sinon.stub(failingModel1, "_generate").rejects(new Error("Failure"));
     const failingModel2 = new FakeChatModel({});
-    sinon.stub(failingModel2, "generate").rejects(new Error("Failure"));
+    sinon.stub(failingModel2, "_generate").rejects(new Error("Failure"));
     const fallbackModel = new FakeChatModel({});
-    sinon.stub(fallbackModel, "generate").resolves(createMockResult("Fallback"));
+    sinon.stub(fallbackModel, "_generate").resolves(createMockResult("Fallback"));
     const routingModel = new RoutingChatModel({
       mainModels: [failingModel1, failingModel2],
       fallbackModels: [fallbackModel],
@@ -84,11 +82,11 @@ describe("RoutingChatModel", () => {
 
   it("should throw an error if all models fail", async () => {
     const failingModel1 = new FakeChatModel({});
-    sinon.stub(failingModel1, "generate").rejects(new Error("Failure"));
+    sinon.stub(failingModel1, "_generate").rejects(new Error("Failure"));
     const failingModel2 = new FakeChatModel({});
-    sinon.stub(failingModel2, "generate").rejects(new Error("Failure"));
+    sinon.stub(failingModel2, "_generate").rejects(new Error("Failure"));
     const failingFallback = new FakeChatModel({});
-    sinon.stub(failingFallback, "generate").rejects(new Error("Failure"));
+    sinon.stub(failingFallback, "_generate").rejects(new Error("Failure"));
 
     const routingModel = new RoutingChatModel({
       mainModels: [failingModel1, failingModel2],
@@ -108,12 +106,12 @@ describe("RoutingChatModel", () => {
 
   it("should bring a failed model back into rotation after the cooldown", async () => {
     const failingModel = new FakeChatModel({});
-    const generateStub = sinon.stub(failingModel, "generate");
+    const generateStub = sinon.stub(failingModel, "_generate");
     generateStub.onFirstCall().rejects(new Error("Failure"));
     generateStub.onSecondCall().resolves(createMockResult("Failed Model"));
 
     const model2 = new FakeChatModel({});
-    sinon.stub(model2, "generate").resolves(createMockResult("Model 2"));
+    sinon.stub(model2, "_generate").resolves(createMockResult("Model 2"));
 
     const routingModel = new RoutingChatModel({
       mainModels: [failingModel, model2],
