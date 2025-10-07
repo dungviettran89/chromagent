@@ -46,6 +46,25 @@ console.log(response.content);
 
 In this example, the `RoutingChatModel` will first try to use the `gpt-4` model. If that model fails, it will try the `gpt-3.5-turbo` model. If both of those models fail, it will use the `gpt-3.5-turbo` model from the fallback list. If a model fails, it will be put on a 30-second cooldown before it is tried again.
 
+### API Compatibility
+
+Chromagent Core now supports multiple LLM providers through dedicated API modules:
+
+#### OpenAI API
+```typescript
+import { createChatCompletions } from 'chromagent-core/openai';
+```
+
+#### Anthropic API
+```typescript
+import { AnthropicChatModel } from 'chromagent-core/anthropic';
+```
+
+#### Google Vertex AI API
+```typescript
+import { VertexChatModel } from 'chromagent-core/vertex';
+```
+
 ### createChatCompletions
 
 The `createChatCompletions` function creates an OpenAI-compatible chat completions endpoint using a provided LangChain `BaseChatModel`. This allows you to expose any LangChain chat model as an OpenAI-compatible API.

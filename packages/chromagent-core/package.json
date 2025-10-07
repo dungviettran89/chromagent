@@ -16,22 +16,25 @@
   },
   "description": "",
   "dependencies": {
-    "@langchain/community": "^0.3.48",
-    "@langchain/core": "^0.3.62",
-    "@langchain/google-genai": "^0.2.14",
-    "@langchain/openai": "^0.5.18",
+    "@langchain/community": "^0.3.57",
+    "@langchain/core": "^0.3.78",
+    "@langchain/google-genai": "^0.2.18",
+    "@langchain/openai": "^0.6.14",
+    "@google/generative-ai": "^0.24.1",
+    "@anthropic-ai/sdk": "^0.65.0",
+    "openai": "^6.2.0",
     "@types/express": "^5.0.3",
     "express": "^5.1.0",
-    "langchain": "^0.3.29"
+    "langchain": "^0.3.35"
   },
   "devDependencies": {
     "@types/chai": "^5.2.2",
-    "@types/mocha": "^9.1.1",
+    "@types/mocha": "^10.0.10",
     "@types/sinon": "^17.0.4",
-    "chai": "^4.3.10",
-    "mocha": "^9.0.0",
-    "sinon": "^17.0.1",
-    "ts-mocha": "^10.0.0",
+    "chai": "^6.2.0",
+    "mocha": "^11.7.4",
+    "sinon": "^21.0.0",
+    "ts-mocha": "^11.1.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   }

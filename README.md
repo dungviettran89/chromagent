@@ -4,9 +4,9 @@ Chromagent is a Chrome extension development project that integrates with large 
 
 ## Features
 
-*   **LLM Integration:** Connects to Google Gemini and OpenAI models via LangChain.js.
+*   **LLM Integration:** Connects to Google Gemini, OpenAI, Anthropic, and Google Vertex AI models via LangChain.js.
 *   **Image Input:** Supports pasting images directly into the chat interface for multimodal interactions.
-*   **Configurable Models:** Allows users to select between Gemini and OpenAI, and configure API keys, API base URLs, and model names.
+*   **Configurable Models:** Allows users to select between different model providers (Gemini, OpenAI, Anthropic, Vertex AI), and configure API keys, API base URLs, and model names.
 *   **Persistent Configuration:** Saves user configurations (API keys, model choices) in browser local storage.
 *   **Webpack & TypeScript:** Built with Webpack for bundling and TypeScript for type-safe development.
 
@@ -55,10 +55,10 @@ npm run dev --workspace=chromagent-extension
 2.  The side panel will display a chat interface. At the top, you'll see the currently selected model name and a settings (cog) icon.
 3.  **Configuration:**
     *   Click the settings (cog) icon to switch to the configuration page.
-    *   Select your desired "Model Type" (Gemini or OpenAI).
+    *   Select your desired "Model Type" (Gemini, OpenAI, Anthropic, or Vertex AI).
     *   Enter your "API Key" for the selected model.
     *   Optionally, enter an "API Base" URL if you are using a custom endpoint.
-    *   Enter the "Model Name" (e.g., `gemini-2.5-flash` for Gemini, `gpt-3.5-turbo` for OpenAI).
+    *   Enter the "Model Name" (e.g., `gemini-2.5-flash` for Gemini, `gpt-3.5-turbo` for OpenAI, `claude-3-sonnet-20240229` for Anthropic, or `gemini-2.5-flash` for Vertex AI).
     *   Your settings will be automatically saved.
 4.  **Chatting:**
     *   Click the settings (cog) icon again to return to the chat interface.
