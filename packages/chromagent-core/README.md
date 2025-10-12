@@ -5,7 +5,7 @@ This package provides the core logic for interacting with large language models 
 ## Installation
 
 ```bash
-npm install chromagent-core
+npm install @chromagen/core
 ```
 
 ## Usage
@@ -17,7 +17,7 @@ The `RoutingChatModel` allows you to route requests between multiple LLM instanc
 Here is an example of how to use the `RoutingChatModel`:
 
 ```typescript
-import { RoutingChatModel } from 'chromagent-core/langchain';
+import { RoutingChatModel } from '@chromagen/core/langchain';
 import { ChatOpenAI } from '@langchain/openai';
 import { HumanMessage } from '@langchain/core/messages';
 
@@ -52,17 +52,17 @@ Chromagent Core now supports multiple LLM providers through dedicated API module
 
 #### OpenAI API
 ```typescript
-import { createChatCompletions } from 'chromagent-core/openai';
+import { createChatCompletions } from '@chromagen/core/openai';
 ```
 
 #### Anthropic API
 ```typescript
-import { AnthropicChatModel } from 'chromagent-core/anthropic';
+import { AnthropicChatModel } from '@chromagen/core/anthropic';
 ```
 
 #### Google Vertex AI API
 ```typescript
-import { VertexChatModel } from 'chromagent-core/vertex';
+import { VertexChatModel } from '@chromagen/core/vertex';
 ```
 
 ### createChatCompletions
@@ -73,7 +73,7 @@ Here is an example of how to use the `createChatCompletions` function with Expre
 
 ```typescript
 import express from 'express';
-import { createChatCompletions } from 'chromagent-core/openai';
+import { createChatCompletions } from '@chromagen/core/openai';
 import { ChatOpenAI } from '@langchain/openai';
 
 const app = express();

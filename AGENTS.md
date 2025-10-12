@@ -112,6 +112,9 @@ All agents must document their activities in the logs folder using the following
   - Configuration files modified
   - Any important notes or observations
 
+## Script Policy
+If agents need to write temporary scripts, please write and put them into temp folder. Only Nodejs and bash script can be written and triggered.
+
 ## Files of Interest
 - `README.md`: Project overview and setup instructions
 - `package.json`: Root workspace configuration

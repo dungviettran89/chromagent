@@ -10,6 +10,8 @@ This document outlines the high-level design of the various modules within the C
 
 *   **[chromagent-extension](./chromagent-extension/readme.md):** This module is the Chrome extension itself, providing a side panel chat interface for interacting with LLMs.
 
+*   **[chromagent-gateway](./chromagent-gateway.md):** This module provides an OpenAI-compatible API gateway that can route requests to multiple backend LLM providers, including Vertex Gemini API, Vertex Anthropic API, Ollama, and custom LLM implementations. It transforms requests and responses to maintain OpenAI compatibility while supporting various backend providers.
+
 *   **chromagent-web:** (Future Module) This module is envisioned as a drop-in LangGraph agent, allowing easy integration of LLM agents into any website. It aims to provide a flexible way to embed LLM capabilities directly into web applications.
 
 *   **chromagent-ui:** (Future Module) This module will provide a simple user interface to allow configuring and talking to LLM agents. It will focus on creating an intuitive and user-friendly experience for managing and interacting with LLMs.

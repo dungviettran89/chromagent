@@ -39,7 +39,7 @@ npm run build
 To start the development server for the extension in watch mode (auto-rebuild on code changes):
 
 ```bash
-npm run dev --workspace=chromagent-extension
+npm run dev --workspace=@chromagen/extension
 ```
 
 ### Loading the Extension in Chrome
@@ -74,29 +74,35 @@ chromagent/
 │   └───workflows/
 │       └───build.yml     # Workflow for building the project
 ├───packages/
-│   ├───chromagent-cli/   # Command-line interface tool
+│   ├───chromagent-cli/   # Command-line interface tool (@chromagen/cli)
 │   │   ├───src/
 │   │   │   └───index.ts
 │   │   └───package.json
 │   │   └───tsconfig.json
-│   ├───chromagent-core/  # Core logic and shared functionalities
+│   ├───chromagent-core/  # Core logic and shared functionalities (@chromagen/core)
 │   │   ├───src/
 │   │   │   └───index.ts
 │   │   └───package.json
 │   │   └───tsconfig.json
-│   └───chromagent-extension/ # Chrome extension
-│       ├───dist/         # Compiled extension files
+│   ├───chromagent-extension/ # Chrome extension (@chromagen/extension)
+│   │   ├───dist/         # Compiled extension files
+│   │   ├───src/
+│   │   │   ├───background.ts
+│   │   │   ├───content_script.ts
+│   │   │   ├───sidepanel.html
+│   │   │   ├───sidepanel.ts
+│   │   │   ├───manifest.json
+│   │   │   └───service/
+│   │       └───configService.ts
+│   │   ├───package.json
+│   │   ├───tsconfig.json
+│   │   └───webpack.config.js
+│   └───chromagent-gateway/ # Gateway service (@chromagen/gateway)
+│       ├───dist/         # Compiled gateway files
 │       ├───src/
-│       │   ├───background.ts
-│       │   ├───content_script.ts
-│       │   ├───sidepanel.html
-│       │   ├───sidepanel.ts
-│       │   ├───manifest.json
-│       │   └───service/
-│       │       └───configService.ts
+│       │   └───(gateway source files)
 │       ├───package.json
-│       ├───tsconfig.json
-│       └───webpack.config.js
+│       └───tsconfig.json
 ├───node_modules/         # Node.js dependencies
 ├───package.json          # Root workspace configuration
 ├───LICENSE
