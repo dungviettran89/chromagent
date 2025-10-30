@@ -26,6 +26,25 @@ The project follows an npm workspace structure with three main packages:
 - **Webpack**: For module bundling
 - **npm workspaces**: For monorepo management
 
+## Common Dependencies
+
+- **@langchain/community**: Community tools and integrations for LangChain
+- **@langchain/core**: Core LangChain functionality
+- **@langchain/google-genai**: Google Generative AI integration for LangChain
+- **@langchain/openai**: OpenAI integration for LangChain
+- **@google/generative-ai**: Google's Generative AI SDK
+- **@anthropic-ai/sdk**: Anthropic AI SDK
+- **openai**: OpenAI API SDK
+- **langchain**: Main LangChain.js library
+- **express**: Web server framework
+- **chai**: Testing assertion library
+- **sinon**: Testing spies, stubs, and mocks
+- **ts-mocha**: TypeScript test runner
+- **jest**: JavaScript testing framework
+- **typescript**: Type checking for JavaScript
+- **webpack**: Module bundler
+- **node-fetch**: Fetch API implementation for Node.js
+
 ## Building and Running
 
 ### Prerequisites
@@ -57,6 +76,8 @@ npm install
 - Uses LangChain.js for LLM integrations
 - Follows npm workspace conventions
 - Uses Webpack for bundling the extension
+- When running build or test commands, use `npm run build` and `npm run test` rather than npx commands to ensure
+  consistency across the workspace
 
 ## Special Tools
 - `qwen.sh`: Script to run Qwen Code agent for this project

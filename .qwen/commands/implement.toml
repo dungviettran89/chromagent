@@ -1,0 +1,9 @@
+description = "Search code base for @agent then implement"
+prompt = """
+Please search the code base for @agent comments.
+For each items, please create a todo item
+Do research and read all related files before implement the comment.
+Implement the request in comment
+Run build, test and integration test to make sure your change works
+After done, remove the @agent comments
+"""
