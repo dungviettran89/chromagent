@@ -1,7 +1,7 @@
 {
   "name": "@chromagen/core",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "ts-mocha --full-trace test/**/*.test.ts",
     "test:integration": "ts-mocha --full-trace it/**/*.it.ts",
@@ -16,6 +16,11 @@
     "directory": "packages/chromagent-core"
   },
   "description": "",
+  "files": [
+    "dist/**/*",
+    "docs/**/*",
+    "README.md"
+  ],
   "dependencies": {
     "@anthropic-ai/sdk": "^0.65.0",
     "@google/generative-ai": "^0.24.1",
