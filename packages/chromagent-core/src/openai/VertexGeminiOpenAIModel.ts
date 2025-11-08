@@ -15,7 +15,7 @@ interface VertexConfig {
 }
 
 /**
- * Maps Google Vertex Gemini API format to OpenAI API format
+ * Maps Google Vertex Gemini API format to OpenAI API format.
  */
 export class VertexGeminiOpenAIModel implements OpenAIModel {
     private config: VertexConfig;
@@ -241,6 +241,8 @@ export class VertexGeminiOpenAIModel implements OpenAIModel {
         if (vertexResponse.candidates?.[0]?.content?.parts?.some((part: any) => part.functionCall)) {
             messageObj.content = null; // When there are function calls, content is usually null in OpenAI format
             messageObj.tool_calls = toolCalls;
+            // Update finish reason to indicate tool calls were made
+            finishReason = 'tool_calls';
         } else {
             // Ensure content is never an array for OpenAI format
             if (Array.isArray(content)) {

@@ -1,0 +1,4 @@
+description = "Commit and push current changes"
+prompt = """
+Read then follow procedures in docs/procedures/commit-and-push.md
+"""

@@ -116,7 +116,6 @@ chromagent/
 ├───node_modules/         # Node.js dependencies
 ├───docs/                 # Documentation
 │   ├───designs/          # Technical design documents
-│   ├───plans/            # Implementation plans
 │   └───procedures/       # Common procedures
 ├───package.json          # Root workspace configuration
 ├───LICENSE
