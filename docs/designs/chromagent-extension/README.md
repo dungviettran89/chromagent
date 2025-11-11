@@ -12,11 +12,11 @@ The extension follows a standard Chrome extension architecture, primarily utiliz
     *   All LLM API requests (via LangChain.js).
     *   Inter-component communication (e.g., between side panel and content script, if any).
     *   Management of persistent data (e.g., user configurations) using Chrome's `chrome.storage.local` API.
-    *   Management of chat history using `lowdb`.
+    *   Management of chat history using `chrome.storage.local`.
 *   **Content Script (content_script.ts - currently minimal/placeholder):** While not heavily utilized in the current version, this component would typically interact with the content of web pages. Its role is minimal in the current chat-focused design.
 *   **Configuration Service (service/configService.ts):** A dedicated service responsible for managing and persisting user settings such as API keys, model types (Gemini/OpenAI), API base URLs, and model names. It abstracts the direct interaction with `chrome.storage.local`.
 *   **Model Provider (e.g., `service/modelProvider.ts`):** This module is responsible for providing the configured chat model instances (e.g., Gemini, OpenAI) to the background service worker, abstracting the LLM initialization logic.
-*   **Chat History Database (lowdb):** `lowdb` is used within the background service worker to store the chat history as a simple, file-based JSON database. This acts as the single source of truth for chat data.
+*   **Chat History Storage:** Chat history is stored in `chrome.storage.local`, ensuring persistence across browser sessions. This acts as the single source of truth for chat data.
 *   **Manifest File (manifest.json):** Defines the extension's properties, permissions, entry points (side panel, background script), and other metadata required by Chrome.
 
 ## 3. Data Flow
@@ -28,9 +28,9 @@ The extension follows a standard Chrome extension architecture, primarily utiliz
     *   Utilizes the Model Provider to get the appropriate LLM instance.
     *   Uses LangChain.js to construct and send the appropriate request to the selected LLM (Gemini or OpenAI).
     *   Handles the LLM's response.
-    *   Updates the chat history in `lowdb` with both the user's message and the LLM's response.
+    *   Updates the chat history in `chrome.storage.local` with both the user's message and the LLM's response.
 4.  **Response to Side Panel:** The background service worker sends the LLM's response (and potentially updates to the chat history) back to the side panel, typically via `chrome.tabs.sendMessage` or by notifying the side panel to re-query the chat history.
-5.  **Side Panel Display:** The `sidepanel.ts` script receives the response or queries the `lowdb` state (via the background worker) and updates the chat interface to display the LLM's output, reflecting the current state of the chat history database.
+5.  **Side Panel Display:** The `sidepanel.ts` script receives the response or is notified of a history change, and it updates the chat interface to display the LLM's output, reflecting the current state of the chat history.
 
 ## 4. Configuration Management
 User configurations (API keys, model choices, etc.) are stored persistently using Chrome's `chrome.storage.local` API. The `configService.ts` module provides a clean interface for setting and retrieving these configurations, ensuring they persist across browser sessions.
