@@ -24,6 +24,8 @@ interfaces. It includes implementations for Anthropic and Google Vertex AI.
 
 ### Anthropic Models
 
+- `LoadBalancedAnthropicModel` - Provides randomized load balancing for Anthropic models with a cooldown mechanism for failing models.
+  See [LoadBalancedAnthropicModel documentation](./docs/LoadBalancedAnthropicModel.md) for detailed usage instructions.
 - `VertexGeminiAnthropicModel` - Implementation mapping Anthropic API format to Google Vertex Gemini format.
   See [VertexGeminiAnthropicModel documentation](./docs/VertexGeminiAnthropicModel.md) for detailed usage instructions.
 - `OpenAIAnthropicModel` - Implementation mapping Anthropic API format to OpenAI-compatible API format.
