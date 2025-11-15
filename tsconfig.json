@@ -1,0 +1,8 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/chromagent-core" },
+    { "path": "packages/chromagent-cli" },
+    { "path": "packages/chromagent-extension" }
+  ]
+}

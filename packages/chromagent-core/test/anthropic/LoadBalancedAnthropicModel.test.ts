@@ -5,8 +5,7 @@ import { expect } from "chai";
 import * as sinon from "sinon";
 import { AnthropicModelRegistry } from "../../src/anthropic/AnthropicModelRegistry";
 import { LoadBalancedAnthropicModel } from "../../src/anthropic/LoadBalancedAnthropicModel";
-import { AnthropicModel } from "../../src/anthropic/AnthropicModel";
-import { Message, MessageParam } from "@anthropic-ai/sdk/messages";
+import { AnthropicModel, AnthropicMessageRequest, AnthropicMessageResponse } from "../../src/anthropic/AnthropicModel";
 
 chai.use(chaiAsPromised);
 
@@ -15,171 +14,176 @@ describe("LoadBalancedAnthropicModel", () => {
     let model1: sinon.SinonStubbedInstance<AnthropicModel>;
     let model2: sinon.SinonStubbedInstance<AnthropicModel>;
     let loadBalancer: LoadBalancedAnthropicModel;
+    let request: AnthropicMessageRequest;
 
     beforeEach(() => {
         registry = new AnthropicModelRegistry();
-        model1 = sinon.stub({ invoke: async () => ({} as Message) });
-        model2 = sinon.stub({ invoke: async () => ({} as Message) });
+        model1 = sinon.createStubInstance(class MockModel implements AnthropicModel {
+            message(request: AnthropicMessageRequest): Promise<AnthropicMessageResponse> {
+                return Promise.resolve({} as AnthropicMessageResponse);
+            }
+        });
+        model2 = sinon.createStubInstance(class MockModel implements AnthropicModel {
+            message(request: AnthropicMessageRequest): Promise<AnthropicMessageResponse> {
+                return Promise.resolve({} as AnthropicMessageResponse);
+            }
+        });
         registry.register("model1", model1);
         registry.register("model2", model2);
+        request = {
+            model: "test-model",
+            messages: [{ role: "user", content: "hello" }],
+            max_tokens: 10
+        };
     });
 
-    it("should select a model based on weight and invoke it", async () => {
+    it("should select a model based on weight and call it", async () => {
         const models = [{ name: "model1", weight: 100 }, { name: "model2", weight: 0 }];
         loadBalancer = new LoadBalancedAnthropicModel(registry, models, 10);
-        const response: Message = {
+        const response: AnthropicMessageResponse = {
             id: "1",
             type: "message",
             role: "assistant",
             content: [{ type: "text", text: "world" }],
-            usage: { input_tokens: 1, output_tokens: 1 }
+            usage: { input_tokens: 1, output_tokens: 1 },
+            model: "model1",
+            stop_reason: "end_turn",
+            stop_sequence: null
         };
-        model1.invoke.resolves(response);
+        model1.message.resolves(response);
 
-        const result = await loadBalancer.invoke([{ role: "user", content: "hello" }]);
+        const result = await loadBalancer.message(request);
 
         expect(result).to.equal(response);
-        expect(model1.invoke.calledOnce).to.be.true;
-        expect(model2.invoke.called).to.be.false;
+        expect(model1.message.calledOnce).to.be.true;
+        expect(model2.message.called).to.be.false;
     });
 
     it("should try the next model if the first one fails", async () => {
         const models = [{ name: "model1", weight: 100 }, { name: "model2", weight: 100 }];
         loadBalancer = new LoadBalancedAnthropicModel(registry, models, 10);
-        const response: Message = {
+        const response: AnthropicMessageResponse = {
             id: "1",
             type: "message",
             role: "assistant",
             content: [{ type: "text", text: "world" }],
-            usage: { input_tokens: 1, output_tokens: 1 }
+            usage: { input_tokens: 1, output_tokens: 1 },
+            model: "model2",
+            stop_reason: "end_turn",
+            stop_sequence: null
         };
-        model1.invoke.rejects(new Error("Model 1 failed"));
-        model2.invoke.resolves(response);
+        model1.message.rejects(new Error("Model 1 failed"));
+        model2.message.resolves(response);
 
-        const result = await loadBalancer.invoke([{ role: "user", content: "hello" }]);
+        const result = await loadBalancer.message(request);
 
         expect(result).to.equal(response);
-        expect(model1.invoke.called || model2.invoke.called).to.be.true;
+        expect(model1.message.called || model2.message.called).to.be.true;
     });
 
     it("should throw an error if all models fail", async () => {
         const models = [{ name: "model1", weight: 100 }, { name: "model2", weight: 100 }];
         loadBalancer = new LoadBalancedAnthropicModel(registry, models, 10);
-        model1.invoke.rejects(new Error("Model 1 failed"));
-        model2.invoke.rejects(new Error("Model 2 failed"));
+        model1.message.rejects(new Error("Model 1 failed"));
+        model2.message.rejects(new Error("Model 2 failed"));
 
-        await expect(loadBalancer.invoke([{ role: "user", content: "hello" }])).to.be.rejectedWith(/Model \d failed/);
+        await expect(loadBalancer.message(request)).to.be.rejectedWith(/Model \d failed/);
     });
 
     it("should remove a model if it returns an invalid response", async () => {
         const models = [{ name: "model1", weight: 100 }, { name: "model2", weight: 100 }];
         loadBalancer = new LoadBalancedAnthropicModel(registry, models, 10);
-        const invalidResponse = {
+        const invalidResponse: AnthropicMessageResponse = {
             id: "1",
             type: "message",
             role: "assistant",
             content: [],
-            usage: { input_tokens: 1, output_tokens: 1 }
+            usage: { input_tokens: 1, output_tokens: 1 },
+            model: "model1",
+            stop_reason: "end_turn",
+            stop_sequence: null
         };
-        const validResponse: Message = {
+        const validResponse: AnthropicMessageResponse = {
             id: "1",
             type: "message",
             role: "assistant",
             content: [{ type: "text", text: "world" }],
-            usage: { input_tokens: 1, output_tokens: 1 }
+            usage: { input_tokens: 1, output_tokens: 1 },
+            model: "model2",
+            stop_reason: "end_turn",
+            stop_sequence: null
         };
-        model1.invoke.resolves(invalidResponse as any);
-        model2.invoke.resolves(validResponse);
+        model1.message.resolves(invalidResponse);
+        model2.message.resolves(validResponse);
 
-        const result = await loadBalancer.invoke([{ role: "user", content: "hello" }]);
+        const result = await loadBalancer.message(request);
 
         expect(result).to.equal(validResponse);
-        // model1 is guaranteed to be called, either first or second.
-        // If model2 is called first, it will return a valid response and model1 will not be called.
-        // So we can only assert that at least one of them is called.
-        // However, since we are removing the invalid model, the valid one must be called.
-        expect(model2.invoke.calledOnce).to.be.true;
+        expect(model2.message.calledOnce).to.be.true;
     });
 
     it("should skip a failed model for errorTimeoutMs duration", async () => {
         const models = [{ name: "model1", weight: 100 }, { name: "model2", weight: 100 }];
         loadBalancer = new LoadBalancedAnthropicModel(registry, models, 100); // 100ms timeout
-        const validResponse: Message = {
+        const validResponse: AnthropicMessageResponse = {
             id: "1",
             type: "message",
             role: "assistant",
             content: [{ type: "text", text: "world" }],
-            usage: { input_tokens: 1, output_tokens: 1 }
+            usage: { input_tokens: 1, output_tokens: 1 },
+            model: "model1",
+            stop_reason: "end_turn",
+            stop_sequence: null
         };
 
-        const selectModelStub = sinon.stub(loadBalancer as any, 'selectModel');
+        const selectModelStub = sinon.stub(loadBalancer as any, 'selectModel').callsFake((modelsToTry: any) => {
+            return modelsToTry[0];
+        });
 
         // First invocation: model1 fails, then model2 succeeds
-        selectModelStub.callsFake((modelsToTry: ModelWithWeight[]) => {
-            if (modelsToTry.some(m => m.name === "model1")) {
-                return modelsToTry.find(m => m.name === "model1");
-            }
-            return modelsToTry[0];
-        });
-        model1.invoke.rejects(new Error("Model 1 failed"));
-        model2.invoke.resolves(validResponse);
-        await loadBalancer.invoke([{ role: "user", content: "hello" }]);
-        expect(model1.invoke.calledOnce).to.be.true;
-        expect(model2.invoke.calledOnce).to.be.true;
+        model1.message.rejects(new Error("Model 1 failed"));
+        model2.message.resolves(validResponse);
+        await loadBalancer.message(request);
+        expect(model1.message.calledOnce).to.be.true;
+        expect(model2.message.calledOnce).to.be.true;
 
         // Reset mocks for next invocation
-        model1.invoke.resetHistory();
-        model2.invoke.resetHistory();
-        selectModelStub.resetHistory();
+        model1.message.resetHistory();
+        model2.message.resetHistory();
 
         // Second invocation within timeout: model1 should be skipped, model2 should be called and fail
-        selectModelStub.callsFake((modelsToTry: ModelWithWeight[]) => {
-            if (modelsToTry.some(m => m.name === "model2")) {
-                return modelsToTry.find(m => m.name === "model2");
-            }
-            return modelsToTry[0];
-        });
-        model1.invoke.rejects(new Error("Model 1 failed")); // Still failing
-        model2.invoke.rejects(new Error("Model 2 failed")); // Now model2 also fails
-        await expect(loadBalancer.invoke([{ role: "user", content: "hello" }])).to.be.rejectedWith(/Model \d failed/);
-        expect(model1.invoke.called).to.be.false; // model1 skipped
-        expect(model2.invoke.calledOnce).to.be.true; // model2 called and failed
+        model1.message.rejects(new Error("Model 1 failed")); // Still failing
+        model2.message.rejects(new Error("Model 2 failed")); // Now model2 also fails
+        await expect(loadBalancer.message(request)).to.be.rejectedWith("Model 2 failed");
+        expect(model1.message.called).to.be.false; // model1 skipped
+        expect(model2.message.calledOnce).to.be.true; // model2 called and failed
 
         // Wait for timeout to pass
         await new Promise(resolve => setTimeout(resolve, 110));
 
         // Reset mocks for next invocation
-        model1.invoke.resetHistory();
-        model2.invoke.resetHistory();
-        selectModelStub.resetHistory();
+        model1.message.resetHistory();
+        model2.message.resetHistory();
 
         // Third invocation after timeout: model1 should be re-included and called, model2 still in cooldown
-        selectModelStub.callsFake((modelsToTry: ModelWithWeight[]) => {
-            if (modelsToTry.some(m => m.name === "model1")) {
-                return modelsToTry.find(m => m.name === "model1");
-            }
-            return modelsToTry[0];
-        });
-        model1.invoke.resolves(validResponse); // model1 now succeeds
-        model2.invoke.rejects(new Error("Model 2 failed")); // model2 still failing
-        await loadBalancer.invoke([{ role: "user", content: "hello" }]);
-        expect(model1.invoke.calledOnce).to.be.true;
-        expect(model2.invoke.called).to.be.false;
+        model1.message.resolves(validResponse); // model1 now succeeds
+        model2.message.rejects(new Error("Model 2 failed")); // model2 still failing
+        await loadBalancer.message(request);
+        expect(model1.message.calledOnce).to.be.true;
+        expect(model2.message.called).to.be.false;
 
-        selectModelStub.restore(); // Restore the original selectModel method
+        selectModelStub.restore();
     });
 
 
     it("should throw an error if all models are in cooldown", async () => {
         const models = [{ name: "model1", weight: 100 }, { name: "model2", weight: 100 }];
-        loadBalancer = new LoadBalancedAnthropicModel(registry, models, 100); // 100ms timeout
-        model1.invoke.rejects(new Error("Model 1 failed"));
-        model2.invoke.rejects(new Error("Model 2 failed"));
+        loadBalancer = new LoadBalancedAnthropicModel(registry, models, 100);
+        model1.message.rejects(new Error("Model 1 failed"));
+        model2.message.rejects(new Error("Model 2 failed"));
 
-        // First invocation: both models fail and go into cooldown
-        await expect(loadBalancer.invoke([{ role: "user", content: "hello" }])).to.be.rejectedWith(/Model \d failed/);
+        await expect(loadBalancer.message(request)).to.be.rejectedWith(/Model \d failed/);
 
-        // Second invocation within timeout: all models are in cooldown
-        await expect(loadBalancer.invoke([{ role: "user", content: "hello" }])).to.be.rejectedWith("No models available to handle the request after considering error timeouts.");
+        await expect(loadBalancer.message(request)).to.be.rejectedWith("No models available to handle the request after considering error timeouts.");
     });
 });

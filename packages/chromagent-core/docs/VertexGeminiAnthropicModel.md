@@ -9,10 +9,6 @@ The class accepts a configuration object with the following properties:
 
 - `apiKey` (string, required): Your Google Vertex AI API key for authentication
 - `model` (string, required): The model name to use for all requests (e.g., `gemini-1.5-pro`, `gemini-1.5-flash`)
-- `location` (string, optional): The location/region for Google Vertex AI (e.g., `us-central1`). Defaults to
-  `us-central1` if not specified.
-- `project` (string, optional): The Google Cloud project ID. This field exists in the config interface but is not
-  currently used in the implementation.
 
 ## API Implementation
 
@@ -181,5 +177,3 @@ console.log(response.content[0].text);
    `https://generativelanguage.googleapis.com/v1beta/models/`) rather than the pure Vertex AI endpoint.
 3. The API key is passed as a query parameter rather than using Google's standard authentication.
 4. Safety settings are set to block only high-risk content by default.
-5. The `location` and `project` parameters in the config are not currently used in the implementation, as the API calls
-   use the generativelanguage endpoint instead of the Vertex endpoint.

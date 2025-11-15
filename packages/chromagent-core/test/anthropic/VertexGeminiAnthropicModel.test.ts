@@ -7,8 +7,6 @@ describe('VertexGeminiAnthropicModel', () => {
     const mockConfig = {
         apiKey: 'test-api-key',
         model: 'gemini-pro',
-        location: 'us-central1',
-        project: 'test-project'
     };
 
     let vertexModel: VertexGeminiAnthropicModel;
@@ -455,56 +453,5 @@ describe('VertexGeminiAnthropicModel', () => {
             }
         });
 
-        it('should use default location and project if not provided', async () => {
-            // Create model without location and project
-            const defaultModel = new VertexGeminiAnthropicModel({
-                apiKey: 'test-api-key',
-                model: 'gemini-pro'
-            });
-
-            const mockAnthropicRequest: AnthropicMessageRequest = {
-                model: 'some-model',
-                messages: [
-                    {
-                        role: 'user',
-                        content: 'Hello'
-                    }
-                ],
-                max_tokens: 100
-            };
-
-            const mockVertexResponse = {
-                candidates: [
-                    {
-                        content: {
-                            parts: [
-                                {
-                                    text: 'Response'
-                                }
-                            ]
-                        },
-                        finishReason: 'STOP'
-                    }
-                ],
-                usageMetadata: {
-                    promptTokenCount: 3,
-                    candidatesTokenCount: 5
-                }
-            };
-
-            const mockFetchResponse = {
-                ok: true,
-                json: () => Promise.resolve(mockVertexResponse)
-            };
-
-            fetchStub.resolves(mockFetchResponse);
-
-            await defaultModel.message(mockAnthropicRequest);
-
-            // Verify the fetch was called with the default location
-            expect(fetchStub.calledOnce).to.be.true;
-            const callArgs = fetchStub.firstCall.args;
-            expect(callArgs[0]).to.equal('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=test-api-key');
-        });
     });
 });

@@ -1,7 +1,6 @@
-import {AnthropicModel, AnthropicMessageResponse} from "./AnthropicModel";
+import {AnthropicMessageRequest, AnthropicMessageResponse, AnthropicModel} from "./AnthropicModel";
 import {AnthropicModelRegistry} from "./AnthropicModelRegistry";
 import {AnthropicUtils} from "./AnthropicUtils";
-import {Message, MessageParam, MessageStream} from "@anthropic-ai/sdk/messages";
 
 type ModelWithWeight = {
     name: string;
@@ -31,7 +30,7 @@ export class LoadBalancedAnthropicModel implements AnthropicModel {
         this.errorTimeoutMs = errorTimeoutMs;
     }
 
-    async invoke(messages: MessageParam[]): Promise<Message | MessageStream> {
+    async message(request: AnthropicMessageRequest): Promise<AnthropicMessageResponse> {
         const candidateModels = this.models.filter(model => {
             const lastFailureTime = this.failedModels.get(model.name);
             return !lastFailureTime || (Date.now() - lastFailureTime >= this.errorTimeoutMs);
@@ -54,8 +53,8 @@ export class LoadBalancedAnthropicModel implements AnthropicModel {
             }
 
             try {
-                const response = await model.invoke(messages);
-                if (AnthropicUtils.isValidResponse(response as AnthropicMessageResponse)) {
+                const response = await model.message(request);
+                if (AnthropicUtils.isValidResponse(response)) {
                     this.failedModels.delete(modelWithWeight.name); // Clear failure on success
                     return response;
                 } else {

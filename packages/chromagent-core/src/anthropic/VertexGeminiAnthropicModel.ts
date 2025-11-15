@@ -8,10 +8,6 @@ interface VertexConfig {
     apiKey: string;
     /** The model name to use for all requests */
     model: string;
-    /** The location/region for Google Vertex AI */
-    location?: string;
-    /** The project ID for Google Vertex AI */
-    project?: string;
 }
 
 /**
