@@ -2,7 +2,7 @@ import {AnthropicMessageRequest, AnthropicMessageResponse, AnthropicModel} from 
 import {AnthropicModelRegistry} from "./AnthropicModelRegistry";
 import {AnthropicUtils} from "./AnthropicUtils";
 
-type ModelWithWeight = {
+export type ModelWithWeight = {
     name: string;
     weight: number;
 };

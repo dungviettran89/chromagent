@@ -1,11 +1,12 @@
-import {CliApplication,} from "./CliApplication";
-import * as process from "node:process";
+import {cliApplication} from "./CliApplication";
 import * as dotenvx from '@dotenvx/dotenvx';
-import {ModelCommand} from "./model/ModelCommand";
-import {ListModelCommand} from "./model/ListModelCommand";
 
-dotenvx.config();
-export const cliApplication = new CliApplication();
-export const modelCommand = new ModelCommand(cliApplication);
-export const listModelCommand = new ListModelCommand(modelCommand);
-cliApplication.run(process.argv);
+dotenvx.config({quiet: true});
+
+export * from './CliApplication';
+export * from './AnthropicModels';
+export * from './model/ModelCommand';
+export * from './model/ModelListCommand';
+export * from './model/ModelChatCommand';
+
+cliApplication.run(process.argv)

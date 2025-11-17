@@ -16,4 +16,5 @@ export class CliApplication {
         this.command.parse(args);
     }
 }
+export const cliApplication = new CliApplication();
 
