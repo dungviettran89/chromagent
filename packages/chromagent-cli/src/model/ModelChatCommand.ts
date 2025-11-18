@@ -6,6 +6,7 @@ import { AnthropicModel, AnthropicMessageRequest } from "@chromagent/core";
 
 export interface ChatModelOptions {
   prompt?: boolean;
+  system?: string;
 }
 
 /**
@@ -16,6 +17,7 @@ export interface ChatModelOptions {
  *
  * It also take in the following options:
  * - -p: To exit immediately after first response without waiting for the next prompt.
+ * - -s, --system: System prompt to send to the model.
  *
  * This command will open a simple chat interface using prompts package to allow user to chat with
  * the models. Conversation is stored in a simple array in the memory only.
@@ -32,9 +34,13 @@ export class ModelChatCommand {
         "-p, --prompt",
         "Exit immediately after first response without waiting for the next prompt."
       )
+      .option("-s, --system <prompt>", "System prompt to send to the model.")
       .action(
-        (model: string, prompt: string | undefined, options: ChatModelOptions) =>
-          this.action(model, prompt, options)
+        (
+          model: string,
+          prompt: string | undefined,
+          options: ChatModelOptions
+        ) => this.action(model, prompt, options)
       );
   }
 
@@ -52,7 +58,13 @@ export class ModelChatCommand {
     const conversation: any[] = [];
 
     if (initialPrompt) {
-      await this.sendMessage(model, modelId, initialPrompt, conversation);
+      await this.sendMessage(
+        model,
+        modelId,
+        initialPrompt,
+        conversation,
+        options.system
+      );
     }
 
     if (options.prompt) {
@@ -70,7 +82,13 @@ export class ModelChatCommand {
       if (!response.prompt) {
         break;
       }
-      await this.sendMessage(model, modelId, response.prompt, conversation);
+      await this.sendMessage(
+        model,
+        modelId,
+        response.prompt,
+        conversation,
+        options.system
+      );
     }
   }
 
@@ -78,16 +96,18 @@ export class ModelChatCommand {
     model: AnthropicModel,
     modelId: string,
     prompt: string,
-    conversation: any[]
+    conversation: any[],
+    system?: string
   ) {
     conversation.push({ role: "user", content: prompt });
-    
+
     const request: AnthropicMessageRequest = {
       model: modelId,
       messages: conversation,
       max_tokens: 1024,
+      system: system,
     };
-    
+
     const response = await model.message(request);
     const responseContent = response.content[0].text;
     conversation.push({ role: "assistant", content: responseContent });

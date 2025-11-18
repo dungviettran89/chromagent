@@ -1,3 +1,13 @@
+
+export interface RequestTextBlock {
+    type: 'text';
+    text: string;
+    cache_control?: {
+        type: 'ephemeral';
+        ttl?: '5m' | '1h';
+    };
+}
+
 /**
  * Related docs: docs/specs/anthropic-messages.md
  * Contains minimal fields for the following functions only:
@@ -31,7 +41,7 @@ export interface AnthropicMessageRequest {
     temperature?: number;
 
     /** System prompt */
-    system?: string;
+    system?: string | RequestTextBlock[];
 
     /** Definitions of tools that the model may use */
     tools?: Array<{

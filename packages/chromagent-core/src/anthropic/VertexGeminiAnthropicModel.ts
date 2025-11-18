@@ -102,9 +102,13 @@ export class VertexGeminiAnthropicModel implements AnthropicModel {
 
         // Add system instructions if system prompt is provided
         if (request.system) {
+            const systemContent = typeof request.system === 'string'
+                ? request.system
+                : request.system.map(block => block.text).join('\n');
+
             vertexRequest.systemInstruction = {
                 role: 'system',
-                parts: [{text: request.system}]
+                parts: [{text: systemContent}]
             };
         }
 

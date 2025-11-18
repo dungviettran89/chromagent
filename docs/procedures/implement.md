@@ -9,4 +9,5 @@ The following information must be found as part of research:
 Implement the request in comment
 Run build, test and integration test to make sure your change works
 After done, remove the comments containing @agent in the files
-Do not use search and replace to delete commend as it may mess up this procedure file
+DO NOT use search and replace to delete commend as it may mess up this procedure file
+DO NOT remove @agent comment from this file

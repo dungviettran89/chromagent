@@ -116,9 +116,13 @@ export class OpenAIAnthropicModel implements AnthropicModel {
         // OpenAI has system role in messages, whereas Anthropic has a separate system parameter
         // If there's a system prompt, add it as a system role message for OpenAI
         if (request.system) {
+            const systemContent = typeof request.system === 'string'
+                ? request.system
+                : request.system.map(block => block.text).join('\n');
+
             openAIMessages.unshift({
                 role: 'system',
-                content: request.system
+                content: systemContent
             });
         }
 
