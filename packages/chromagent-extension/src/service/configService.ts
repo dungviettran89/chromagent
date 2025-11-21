@@ -14,7 +14,7 @@ class ConfigService {
   private async loadConfig(): Promise<Record<string, ConfigItem>> {
     return new Promise((resolve) => {
       chrome.storage.local.get(this.storageKey, (result) => {
-        resolve(result[this.storageKey] || {});
+        resolve((result[this.storageKey] || {}) as Record<string, ConfigItem>);
       });
     });
   }

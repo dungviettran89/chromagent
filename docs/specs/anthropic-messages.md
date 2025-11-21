@@ -36,6 +36,10 @@ paths:
                 To use multiple betas, use a comma separated list like
                 `beta1,beta2` or specify the header multiple times for each
                 beta.
+
+
+                Available betas:
+                * `structured-outputs-2025-11-13`: Enables Structured Outputs
         anthropic-version:
           schema:
             - type: string
@@ -78,6 +82,8 @@ paths:
                       for additional details and options.
                     examples:
                       - claude-sonnet-4-5-20250929
+                      - claude-haiku-4-5-20251001
+                      - claude-opus-4-1-20250805
                     maxLength: 256
                     minLength: 1
                     title: Model
@@ -235,6 +241,42 @@ paths:
                 allOf:
                   - $ref: '#/components/schemas/Metadata'
                     description: An object describing metadata about the request.
+              output_format:
+                allOf:
+                  - description: >-
+                      Configuration for structured outputs.
+                      
+                      
+                      To use this, you must set the `anthropic-beta` header to
+                      `structured-outputs-2025-11-13`.
+                    oneOf:
+                      - type: object
+                        properties:
+                          type:
+                            const: json_schema
+                            type: string
+                          json_schema:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                                description: Name of the schema
+                              description:
+                                type: string
+                                description: Description of the schema
+                              schema:
+                                type: object
+                                description: The JSON schema object
+                              strict:
+                                type: boolean
+                                description: Whether to enforce strict schema validation
+                            required:
+                              - type
+                              - json_schema
+                        required:
+                          - type
+                          - json_schema
+                    title: Output Format
               service_tier:
                 allOf:
                   - description: >-

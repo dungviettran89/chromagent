@@ -38,7 +38,7 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     }
   } else if (message.type === 'LLM_CHAT') {
     try {
-      let chatHistory = (await chrome.storage.local.get(['chatHistory'])).chatHistory || [];
+      let chatHistory: ChatMessage[] = ((await chrome.storage.local.get(['chatHistory'])) as { chatHistory?: ChatMessage[] }).chatHistory || [];
 
       const userMessageContent = message.payload.type === 'text' ? message.payload.text : [{ type: 'image_url', image_url: message.payload.data }];
       chatHistory.push({ type: 'human', content: userMessageContent });
