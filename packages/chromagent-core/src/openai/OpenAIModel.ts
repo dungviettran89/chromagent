@@ -13,7 +13,7 @@ export interface OpenAIChatCompletionsRequest {
 
     /** Input messages. Each input message must be an object with a `role` and `content` */
     messages: Array<{
-        role: 'user' | 'assistant' | 'system';
+        role: 'user' | 'assistant' | 'system' | 'tool';
         content: string | Array<{
             type: 'text' | 'image_url';
             text?: string;
@@ -21,7 +21,17 @@ export interface OpenAIChatCompletionsRequest {
                 url: string;
                 detail?: 'auto' | 'low' | 'high';
             };
+        }> | null;
+        name?: string;
+        tool_calls?: Array<{
+            id: string;
+            type: 'function';
+            function: {
+                name: string;
+                arguments: string;
+            };
         }>;
+        tool_call_id?: string;
     }>;
 
     /** What sampling temperature to use, between 0 and 2 */
@@ -133,6 +143,31 @@ export interface OpenAIChatCompletionsResponse {
     created: number;
 }
 
+export interface OpenAIChatCompletionChunk {
+    id: string;
+    object: 'chat.completion.chunk';
+    created: number;
+    model: string;
+    choices: Array<{
+        index: number;
+        delta: {
+            role?: 'assistant' | 'tool';
+            content?: string | null;
+            tool_calls?: Array<{
+                index: number;
+                id?: string;
+                type?: 'function';
+                function?: {
+                    name?: string;
+                    arguments?: string;
+                };
+            }>;
+        };
+        finish_reason: 'stop' | 'length' | 'tool_calls' | 'content_filter' | 'function_call' | null;
+        logprobs?: any;
+    }>;
+}
+
 /**
  * Related docs: https://platform.openai.com/docs/api-reference/chat/create
  * Contains only one method to allow mapping back to OpenAI compatible API
@@ -144,5 +179,5 @@ export interface OpenAIModel {
      * @param request - The message request containing model, messages, and other configuration
      * @returns A promise that resolves to the API response with content, model info, and usage statistics
      */
-    chatCompletion(request: OpenAIChatCompletionsRequest): Promise<OpenAIChatCompletionsResponse>
+    chatCompletion(request: OpenAIChatCompletionsRequest): Promise<OpenAIChatCompletionsResponse | AsyncIterable<OpenAIChatCompletionChunk>>
 }

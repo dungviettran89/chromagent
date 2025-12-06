@@ -15,8 +15,7 @@ describe('OpenAIAnthropicModel', () => {
 
     beforeEach(() => {
         openAIModel = new OpenAIAnthropicModel(mockConfig);
-        fetchStub = sinon.stub();
-        (globalThis as any).fetch = fetchStub;
+        fetchStub = sinon.stub(global, 'fetch');
     });
 
     afterEach(() => {

@@ -24,13 +24,19 @@ export interface AnthropicMessageRequest {
     messages: Array<{
         role: 'user' | 'assistant';
         content: string | Array<{
-            type: 'text' | 'image';
+            type: 'text' | 'image' | 'tool_use' | 'tool_result' | 'thinking';
             text?: string;
+            thinking?: string;
             source?: {
                 type: 'base64';
                 media_type: 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp';
                 data: string;
             };
+            id?: string;
+            name?: string;
+            input?: Record<string, any>;
+            tool_use_id?: string;
+            content?: string | Array<any>;
         }>;
     }>;
 

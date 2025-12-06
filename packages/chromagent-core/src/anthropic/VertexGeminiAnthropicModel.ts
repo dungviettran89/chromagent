@@ -1,4 +1,4 @@
-import {AnthropicMessageRequest, AnthropicMessageResponse, AnthropicModel} from "./AnthropicModel";
+import { AnthropicMessageRequest, AnthropicMessageResponse, AnthropicModel } from "./AnthropicModel";
 
 /**
  * Configuration options for VertexGeminiAnthropicModel
@@ -63,19 +63,55 @@ export class VertexGeminiAnthropicModel implements AnthropicModel {
         // Transform messages
         const vertexMessages = request.messages.map(msg => {
             // Handle content that could be a string or array of content blocks
-            const parts: Array<{ text?: string; inlineData?: { mimeType: string; data: string } }> = [];
+            const parts: Array<{ text?: string; inlineData?: { mimeType: string; data: string }; functionResponse?: { name: string; response: object } }> = [];
 
             if (typeof msg.content === 'string') {
-                parts.push({text: msg.content});
+                parts.push({ text: msg.content });
             } else {
                 for (const block of msg.content) {
                     if (block.type === 'text') {
-                        parts.push({text: block.text || ''});
+                        parts.push({ text: block.text || '' });
                     } else if (block.type === 'image' && block.source?.type === 'base64') {
                         parts.push({
                             inlineData: {
                                 mimeType: block.source.media_type,
                                 data: block.source.data
+                            }
+                        });
+                    } else if (block.type === 'thinking') {
+                        // Gemini doesn't have thinking blocks, convert to text
+                        if (block.thinking) {
+                            parts.push({ text: block.thinking });
+                        }
+                    } else if (block.type === 'tool_result') {
+                        // We need to find the function name corresponding to this tool_use_id
+                        // Since this is a stateless transformation, we have to look back in the request messages
+                        // to find the assistant message with the matching tool_use id.
+                        const functionName = this.findFunctionNameForToolUseId(request.messages, block.tool_use_id || '');
+
+                        // If we can't find the name, we might have an issue. 
+                        // However, for now let's assume we can find it or use a placeholder if critical.
+                        // Vertex requires 'name' in functionResponse.
+
+                        let content: any;
+                        if (typeof block.content === 'string') {
+                            try {
+                                content = JSON.parse(block.content);
+                            } catch (e) {
+                                content = { result: block.content };
+                            }
+                        } else {
+                            // Handle array of content blocks in tool_result if necessary, 
+                            // though usually it's just text or image. 
+                            // For simplicity, we'll just stringify it if it's complex for now, 
+                            // or map it if it's simple text.
+                            content = { content: block.content };
+                        }
+
+                        parts.push({
+                            functionResponse: {
+                                name: functionName || 'unknown_tool',
+                                response: content
                             }
                         });
                     }
@@ -92,13 +128,68 @@ export class VertexGeminiAnthropicModel implements AnthropicModel {
             contents: vertexMessages,
             generationConfig: {
                 // Map Anthropic temperature to Vertex
-                ...(typeof request.temperature !== 'undefined' && {temperature: request.temperature}),
+                ...(typeof request.temperature !== 'undefined' && { temperature: request.temperature }),
                 // Map max_tokens to candidateCount and maxOutputTokens in Vertex
-                ...(typeof request.max_tokens !== 'undefined' && {maxOutputTokens: request.max_tokens}),
+                ...(typeof request.max_tokens !== 'undefined' && { maxOutputTokens: request.max_tokens }),
                 // Add stop sequences if provided
-                ...(request.stop_sequences && request.stop_sequences.length > 0 && {stopSequences: request.stop_sequences})
+                ...(request.stop_sequences && request.stop_sequences.length > 0 && { stopSequences: request.stop_sequences })
             }
         };
+
+        // Map tools
+        if (request.tools && request.tools.length > 0) {
+            const tools: any[] = [];
+            const functionDeclarations: any[] = [];
+
+            for (const tool of request.tools) {
+                if (tool.name === 'WebSearch') {
+                    // Convert to Gemini's native Google Search tool
+                    tools.push({ googleSearchRetrieval: {} });
+                } else if (tool.name === 'WebFetch') {
+                    // Convert to Gemini's native URL Context tool
+                    tools.push({ urlContext: {} });
+                } else {
+                    const parameters = JSON.parse(JSON.stringify(tool.input_schema || {}));
+                    this.cleanJsonSchema(parameters);
+
+                    functionDeclarations.push({
+                        name: tool.name,
+                        description: tool.description,
+                        parameters: parameters
+                    });
+                }
+            }
+
+            if (functionDeclarations.length > 0) {
+                tools.push({ functionDeclarations });
+            }
+
+            vertexRequest.tools = tools;
+        }
+
+        // Map tool_choice
+        if (request.tool_choice) {
+            if (request.tool_choice.type === 'auto') {
+                vertexRequest.toolConfig = {
+                    functionCallingConfig: {
+                        mode: 'AUTO'
+                    }
+                };
+            } else if (request.tool_choice.type === 'any') {
+                vertexRequest.toolConfig = {
+                    functionCallingConfig: {
+                        mode: 'ANY'
+                    }
+                };
+            } else if (request.tool_choice.type === 'tool' && request.tool_choice.name) {
+                vertexRequest.toolConfig = {
+                    functionCallingConfig: {
+                        mode: 'ANY',
+                        allowedFunctionNames: [request.tool_choice.name]
+                    }
+                };
+            }
+        }
 
         // Add system instructions if system prompt is provided
         if (request.system) {
@@ -108,7 +199,7 @@ export class VertexGeminiAnthropicModel implements AnthropicModel {
 
             vertexRequest.systemInstruction = {
                 role: 'system',
-                parts: [{text: systemContent}]
+                parts: [{ text: systemContent }]
             };
         }
 
@@ -121,6 +212,46 @@ export class VertexGeminiAnthropicModel implements AnthropicModel {
         ];
 
         return vertexRequest;
+    }
+
+    private cleanJsonSchema(value: any) {
+        if (typeof value === 'object' && value !== null) {
+            // Remove JSON Schema metadata fields
+            delete value['$schema'];
+            delete value['$id'];
+            delete value['$ref'];
+            delete value['$comment'];
+            delete value['exclusiveMinimum'];
+            delete value['exclusiveMaximum'];
+            delete value['definitions'];
+            delete value['$defs'];
+
+            // Recursively clean nested objects
+            for (const key in value) {
+                this.cleanJsonSchema(value[key]);
+            }
+        } else if (Array.isArray(value)) {
+            // Recursively clean array elements
+            for (const item of value) {
+                this.cleanJsonSchema(item);
+            }
+        }
+    }
+
+    /**
+     * Helper to find function name for a given tool_use_id from previous messages
+     */
+    private findFunctionNameForToolUseId(messages: any[], toolUseId: string): string | undefined {
+        for (const msg of messages) {
+            if (msg.role === 'assistant' && Array.isArray(msg.content)) {
+                for (const block of msg.content) {
+                    if (block.type === 'tool_use' && block.id === toolUseId) {
+                        return block.name;
+                    }
+                }
+            }
+        }
+        return undefined;
     }
 
     /**

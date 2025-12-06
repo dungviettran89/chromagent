@@ -6,8 +6,9 @@
     "url": "git+https://github.com/dungviettran89/chromagent.git"
   },
   "scripts": {
-    "build": "pnpm run -r build",
-    "test": "pnpm run -r test",
-    "test:integration": "pnpm run -r test:integration"
+    "setup": "npx pnpm install",
+    "build": "npx pnpm run -r build",
+    "test": "npx pnpm run -r test",
+    "test:integration": "npx pnpm run -r test:integration"
   }
 }
